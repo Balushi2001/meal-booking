@@ -1,0 +1,27 @@
+# Render Blueprint: one-click deployment (https://render.com/docs/blueprint-spec)
+services:
+  - type: web
+    name: meal-booking
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /login
+    envVars:
+      - key: NODE_VERSION
+        value: 22.12.0
+      - key: APP_TZ
+        value: Asia/Muscat
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: COOKIE_SECURE
+        value: "1"
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: KIOSK_PASSWORD
+        sync: false
+      - key: SEED_DEMO
+        value: "1"
+      - key: PAYMENT_PROVIDER
+        value: mock

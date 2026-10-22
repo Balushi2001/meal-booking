@@ -120,7 +120,7 @@ const DEFAULT_SETTINGS = {
   allow_cancel: '0',
   reminder_template:
     'مرحبًا {name}، لم تحجز وجبات الغد ({date}) بعد. يُغلق الحجز الساعة {cutoff} مساءً. احجز الآن: {link}',
-  site_url: process.env.SITE_URL || 'http://localhost:3000',
+  site_url: process.env.SITE_URL || process.env.RENDER_EXTERNAL_URL || 'http://localhost:3000',
   last_reminder_date: '',
   last_noshow_date: '',
 };
@@ -151,15 +151,15 @@ function clubs() {
 // Creates the built-in admin and kiosk accounts on first run.
 function ensureSystemAccounts() {
   const accounts = [
-    { member_no: 'admin', name: 'المشرف', role: 'admin', password: process.env.ADMIN_PASSWORD || 'admin12345' },
-    { member_no: 'kiosk', name: 'شاشة الاستلام', role: 'kiosk', password: process.env.KIOSK_PASSWORD || 'kiosk12345' },
+    { member_no: 'admin', name: 'المشرف', role: 'admin', password: process.env.ADMIN_PASSWORD || 'admin12345', fromEnv: Boolean(process.env.ADMIN_PASSWORD) },
+    { member_no: 'kiosk', name: 'شاشة الاستلام', role: 'kiosk', password: process.env.KIOSK_PASSWORD || 'kiosk12345', fromEnv: Boolean(process.env.KIOSK_PASSWORD) },
   ];
   for (const a of accounts) {
     const exists = db.prepare('SELECT id FROM users WHERE member_no = ?').get(a.member_no);
     if (!exists) {
       db.prepare('INSERT INTO users (member_no, name, password_hash, role) VALUES (?, ?, ?, ?)')
         .run(a.member_no, a.name, bcrypt.hashSync(a.password, 10), a.role);
-      console.log(`[setup] تم إنشاء حساب ${a.name}: ${a.member_no} / ${a.password} — غيّر كلمة المرور بعد أول دخول.`);
+      console.log(`[setup] تم إنشاء حساب ${a.name}: ${a.member_no} / ${a.fromEnv ? '(كلمة المرور من متغيرات البيئة)' : `${a.password} — غيّر كلمة المرور بعد أول دخول.`}`);
     }
   }
 }
