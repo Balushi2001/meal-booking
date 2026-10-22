@@ -1,0 +1,29 @@
+<%- include('../partials/admin-top') %>
+<form method="get" class="toolbar">
+  <label>الشهر: <input type="month" name="month" value="<%= ym %>" data-autosubmit></label>
+  <a class="btn btn-primary btn-sm" href="/admin/reports/export?month=<%= ym %>">تنزيل Excel لكل الأعضاء</a>
+</form>
+<div class="kpis">
+  <div class="kpi"><span>الوجبات</span><strong class="teal"><%= t.meals %></strong><small>لـ <%= t.members %> عضوًا</small></div>
+  <div class="kpi"><span>الإجمالي</span><strong class="teal"><%= fmt.money(t.total) %></strong><small>ر.ع</small></div>
+  <div class="kpi"><span>المدفوع</span><strong class="teal"><%= fmt.money(t.paid) %></strong><small>ر.ع</small></div>
+  <div class="kpi"><span>المستحق</span><strong class="rust"><%= fmt.money(t.due) %></strong><small>ر.ع</small></div>
+</div>
+<section class="a-card">
+  <h3>حسب الوجبة</h3>
+  <div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>الوجبة</th><th>العدد</th><th>المبلغ (ر.ع)</th></tr></thead>
+    <tbody>
+      <% for (const r of byType) { %><tr><td><%= fmt.MEAL_TYPES[r.type] %></td><td><%= r.c %></td><td><%= fmt.money(r.s) %></td></tr><% } %>
+      <% if (!byType.length) { %><tr><td colspan="3" class="muted center">لا توجد بيانات.</td></tr><% } %>
+    </tbody>
+  </table>
+  </div>
+  <p class="muted small">تم الاستلام: <%= t.picked || 0 %> · لم يُستلم: <%= t.no_show || 0 %></p>
+</section>
+<section class="a-card">
+  <h3>خيارات التصدير</h3>
+  <p>ملف Excel لكل الأعضاء يحتوي ورقة لكل عضو + ورقة ملخص، بصيغة ‎.xlsx واتجاه من اليمين لليسار. لتقرير عضو واحد افتح صفحته من <a href="/admin/members">الأعضاء</a>.</p>
+</section>
+<%- include('../partials/admin-bottom') %>

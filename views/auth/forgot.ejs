@@ -1,0 +1,34 @@
+<%- include('../partials/head', { bodyClass: 'auth' }) %>
+<main class="auth-wrap">
+  <div class="card auth-card">
+    <h2>استعادة الحساب</h2>
+    <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+    <% if (step === 'phone') { %>
+      <p class="muted">أدخل رقم هاتفك المسجّل، وسنرسل لك رمز تحقق عبر واتساب.</p>
+      <form method="post" action="/forgot" class="form">
+        <label class="field"><span>رقم الهاتف (واتساب)</span>
+          <input name="phone" value="<%= values.phone || '' %>" placeholder="+968 9XXX XXXX" inputmode="tel" dir="ltr" class="ltr-input" required autofocus></label>
+        <button class="btn btn-primary btn-block">إرسال رمز التحقق</button>
+      </form>
+    <% } else if (step === 'code') { %>
+      <p class="muted">إذا كان الرقم <bdi dir="ltr"><%= values.phone %></bdi> مسجّلًا، ستصلك رسالة واتساب برمز من 6 أرقام.</p>
+      <form method="post" action="/forgot/verify" class="form">
+        <label class="field"><span>رمز التحقق</span>
+          <input name="code" inputmode="numeric" maxlength="6" dir="ltr" class="ltr-input otp" required autofocus></label>
+        <button class="btn btn-primary btn-block">تحقق</button>
+      </form>
+      <div class="auth-links"><a href="/forgot">إعادة إرسال الرمز</a></div>
+    <% } else { %>
+      <p class="muted">رقم عضويتك هو</p>
+      <div class="member-no-big"><%= values.memberNo %></div>
+      <p class="muted">يمكنك الآن تعيين كلمة مرور جديدة:</p>
+      <form method="post" action="/forgot/reset" class="form">
+        <label class="field"><span>كلمة المرور الجديدة</span><input name="password" type="password" minlength="8" required></label>
+        <label class="field"><span>تأكيد كلمة المرور</span><input name="password_confirm" type="password" required></label>
+        <button class="btn btn-primary btn-block">حفظ كلمة المرور</button>
+      </form>
+    <% } %>
+    <div class="auth-links"><a href="/login">العودة لتسجيل الدخول</a><span class="muted small">يمكن أيضًا أن يعيد المشرف تعيين كلمة المرور.</span></div>
+  </div>
+</main>
+<%- include('../partials/foot') %>

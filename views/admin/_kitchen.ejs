@@ -1,0 +1,19 @@
+<div class="table-wrap">
+<table class="table">
+  <thead><tr><th>الوجبة</th><th>الصنف</th><th>العدد</th><th>مدفوع</th><th>عند الراتب</th><th>سفري</th><th>جلوس</th></tr></thead>
+  <tbody>
+    <% if (!kitchen.length) { %><tr><td colspan="7" class="muted center">لا توجد حجوزات بعد.</td></tr><% } %>
+    <% for (const k of kitchen) { %>
+      <tr><td><%= fmt.MEAL_TYPES_SHORT[k.type] %></td><td><%= k.name %></td><td><b><%= k.total %></b></td><td><%= k.paid_now %></td><td><%= k.salary %></td><td><%= k.takeaway %></td><td><%= k.dinein %></td></tr>
+    <% } %>
+  </tbody>
+</table>
+</div>
+<% if (clubsRows.length) { %>
+<h4 class="mt">حسب النادي وطريقة الاستلام</h4>
+<div class="club-chips">
+  <% for (const c of clubsRows) { %>
+    <div class="club-chip"><b><%= c.club || '—' %></b><span><%= c.total %> وجبة</span><small>🥡 <%= c.takeaway %> · 🍽️ <%= c.dinein %></small></div>
+  <% } %>
+</div>
+<% } %>

@@ -1,0 +1,9 @@
+<%- include('head', { bodyClass: 'member' }) %>
+<header class="m-header">
+  <div class="m-header-inner">
+    <a href="/" class="brand"><span class="brand-mark">🍽️</span> حجز الوجبات</a>
+    <span class="chip chip-ink" title="رقم العضوية"><%= user.member_no %></span>
+  </div>
+</header>
+<main class="m-main">
+  <%- include('flash') %>

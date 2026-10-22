@@ -1,0 +1,45 @@
+<%- include('../partials/member-top') %>
+<section class="page-head">
+  <h1>منيو <%= fmt.dateLong(target.date) %></h1>
+  <p class="muted">يُغلق الحجز الساعة <%= fmt.clock(target.closesAt) %> · <span data-countdown="<%= target.closesAt.getTime() %>"></span></p>
+</section>
+
+<% if (!menu.length) { %>
+  <div class="empty card">
+    <div class="empty-icon">🗒️</div>
+    <h2>لم يُنشر منيو الغد بعد</h2>
+    <p class="muted">عد لاحقًا بعد أن ينشر المشرف أصناف الغد.</p>
+  </div>
+<% } else { %>
+  <form method="post" action="/book" id="menu-form" data-meal-picker>
+    <% for (const type of ['breakfast', 'lunch', 'dinner']) {
+         const items = menu.filter(m => m.type === type);
+         const already = booked.find(b => b.type === type);
+         if (!items.length) continue; %>
+      <fieldset class="meal-group">
+        <legend><%= fmt.MEAL_TYPES[type] %></legend>
+        <% if (already) { %>
+          <div class="meal-card booked">
+            <div><strong><%= already.meal_name %></strong><small class="muted"><%= already.meal_description %></small></div>
+            <span class="pill pill-booked">محجوز مسبقًا</span>
+          </div>
+        <% } else { for (const m of items) { %>
+          <label class="meal-card">
+            <input type="checkbox" name="meal" value="<%= m.id %>" data-type="<%= type %>" data-price="<%= m.price %>" <%= selected.includes(m.id) ? 'checked' : '' %>>
+            <div class="meal-info">
+              <span class="meal-type"><%= fmt.MEAL_TYPES[type] %> · <%= fmt.money(m.price) %> ر.ع</span>
+              <strong><%= m.name %></strong>
+              <% if (m.description) { %><small class="muted"><%= m.description %></small><% } %>
+            </div>
+            <span class="tick">✓ تم الاختيار</span>
+          </label>
+        <% } } %>
+      </fieldset>
+    <% } %>
+    <div class="total-bar">
+      <span data-total>اختر وجباتك</span>
+      <button class="btn btn-accent" data-next disabled>متابعة ←</button>
+    </div>
+  </form>
+<% } %>
+<%- include('../partials/member-bottom') %>

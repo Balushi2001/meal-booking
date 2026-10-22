@@ -1,0 +1,14 @@
+<%- include('../partials/head', { bodyClass: 'auth' }) %>
+<main class="auth-wrap">
+  <div class="card auth-card">
+    <div class="gateway-head">🔒 بوابة الدفع الإلكتروني <span class="chip chip-soft">وضع تجريبي</span></div>
+    <p class="muted"><%= checkout.description %></p>
+    <div class="member-no-big"><%= fmt.money(checkout.amount) %> <small>ر.ع</small></div>
+    <p class="note small">هذه صفحة محاكاة لبوابة الدفع. عند ربط بوابة حقيقية تُستبدل بصفحة الدفع الخاصة بالبنك.</p>
+    <form method="post" action="/pay/gateway/<%= token %>" class="row-btns">
+      <button class="btn btn-primary" name="result" value="success">محاكاة دفع ناجح</button>
+      <button class="btn btn-danger-ghost" name="result" value="fail">محاكاة فشل الدفع</button>
+    </form>
+  </div>
+</main>
+<%- include('../partials/foot') %>

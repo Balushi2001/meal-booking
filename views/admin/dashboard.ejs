@@ -1,0 +1,33 @@
+<%- include('../partials/admin-top') %>
+<div class="a-row-head">
+  <h2><%= fmt.dateFull(today) %></h2>
+  <span class="chip chip-alert">حجز <%= fmt.dateLong(target.date) %> يُغلق <%= fmt.clock(target.closesAt) %> · <span data-countdown="<%= target.closesAt.getTime() %>"></span></span>
+</div>
+<% if (!menuPublished) { %>
+  <div class="alert alert-warning">لم يُنشر منيو <%= fmt.dateLong(target.date) %> بعد — لن يستطيع الأعضاء الحجز ولن يُرسل تذكير واتساب. <a href="/admin/menu?date=<%= target.date %>">أضف المنيو الآن</a></div>
+<% } %>
+<% for (const c of capacity) { %>
+  <div class="alert alert-warning">أرقام العضوية للحرف <b><%= c.letter %></b> اقتربت من الامتلاء (<%= c.used %> من <%= c.capacity %>). عند الامتلاء يُضاف تلقائيًا رقم رابع.</div>
+<% } %>
+<div class="kpis">
+  <a class="kpi" href="/admin/bookings?date=<%= target.date %>">
+    <span>حجوزات الغد</span><strong class="teal"><%= tomorrowTotal %></strong>
+    <small>إفطار <%= byType.breakfast || 0 %> · غداء <%= byType.lunch || 0 %> · عشاء <%= byType.dinner || 0 %></small>
+  </a>
+  <div class="kpi"><span>لم يحجزوا للغد</span><strong class="amber"><%= notBooked %></strong><small>يصلهم تذكير <%= reminderTime %></small></div>
+  <a class="kpi" href="/admin/bookings?date=<%= today %>">
+    <span>استلام اليوم</span><strong class="teal"><span class="ltr"><%= pickup.picked %> / <%= pickup.total %></span></strong>
+    <small><%= pickup.total - pickup.picked %> وجبات لم تُستلم بعد</small>
+  </a>
+  <a class="kpi" href="/admin/members?filter=due">
+    <span>المستحقات</span><strong class="rust"><%= fmt.money(dues.total) %></strong><small>ر.ع على <%= dues.members %> عضوًا</small>
+  </a>
+</div>
+<section class="a-card">
+  <div class="a-card-head">
+    <h3>ملخص وجبات <%= fmt.dateLong(target.date) %> (للمطبخ)</h3>
+    <a class="btn btn-ghost btn-sm" href="/admin/bookings/export?date=<%= target.date %>">تنزيل Excel</a>
+  </div>
+  <%- include('_kitchen', { kitchen, clubsRows }) %>
+</section>
+<%- include('../partials/admin-bottom') %>

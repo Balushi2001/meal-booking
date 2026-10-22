@@ -1,0 +1,66 @@
+<%- include('../partials/admin-top') %>
+<div class="steps">
+  <section class="a-card step <%= member ? 'done' : 'current' %>">
+    <h3><span class="step-no">1</span> ابحث عن العضو</h3>
+    <form method="get" class="inline-form">
+      <input type="search" name="q" value="<%= q %>" placeholder="بالاسم أو رقم العضوية أو الهاتف" autofocus>
+      <button class="btn btn-primary btn-sm">بحث</button>
+    </form>
+    <% if (results.length) { %>
+      <ul class="pick-list">
+        <% for (const r of results) { %><li><a href="/admin/book?user=<%= r.id %>"><b><%= r.name %></b> · <span class="ltr"><%= r.member_no %></span> <small class="muted ltr"><%= r.phone %></small></a></li><% } %>
+      </ul>
+    <% } else if (q) { %><p class="muted">لا يوجد عضو مطابق.</p><% } %>
+    <% if (member) { %><p class="selected-line">✓ <b><%= member.name %></b> · <span class="ltr"><%= member.member_no %></span> <a href="/admin/book">تغيير</a></p><% } %>
+  </section>
+
+  <% if (member) { %>
+  <section class="a-card step <%= date ? 'done' : 'current' %>">
+    <h3><span class="step-no">2</span> اليوم والوجبة</h3>
+    <form method="get" class="inline-form">
+      <input type="hidden" name="user" value="<%= member.id %>">
+      <select name="date" data-autosubmit>
+        <option value="">اختر اليوم (من المنيو المنشور)</option>
+        <% for (const d of dates) { %><option value="<%= d %>" <%= d === date ? 'selected' : '' %>><%= fmt.dateLong(d) %></option><% } %>
+      </select>
+    </form>
+    <% if (!dates.length) { %><p class="muted">لا يوجد منيو منشور لأيام قادمة. <a href="/admin/menu">أضف المنيو</a></p><% } %>
+  </section>
+  <% } %>
+
+  <% if (member && date) { %>
+  <form method="post" action="/admin/book" class="a-card step current">
+    <input type="hidden" name="user_id" value="<%= member.id %>">
+    <input type="hidden" name="date" value="<%= date %>">
+    <h3><span class="step-no">3</span> الوجبات وطريقة الدفع</h3>
+    <% for (const type of ['breakfast', 'lunch', 'dinner']) {
+         const items = menu.filter(m => m.type === type);
+         const already = booked.find(b => b.type === type);
+         if (!items.length) continue; %>
+      <div class="field"><span><%= fmt.MEAL_TYPES[type] %></span>
+        <% if (already) { %><p class="muted">محجوز مسبقًا: <%= already.meal_name %></p><% } else { %>
+          <div class="choice-grid">
+            <label class="choice"><input type="radio" name="meal_<%= type %>" value="" checked><span>بدون</span></label>
+            <% for (const m of items) { %><label class="choice"><input type="radio" name="meal_<%= type %>" value="<%= m.id %>"><span><%= m.name %> · <%= fmt.money(m.price) %></span></label><% } %>
+          </div>
+        <% } %>
+      </div>
+    <% } %>
+    <div class="form-row">
+      <label class="field"><span>النادي</span><select name="club"><% for (const c of clubs) { %><option <%= member.club === c ? 'selected' : '' %>><%= c %></option><% } %></select></label>
+      <label class="field"><span>طريقة الاستلام</span><select name="mode"><option value="takeaway">سفري (بارسل)</option><option value="dinein">الجلوس في النادي</option></select></label>
+      <label class="field"><span>طريقة الدفع</span><select name="method"><option value="salary">عند نزول الراتب</option><option value="now">مدفوع</option></select></label>
+    </div>
+    <h3><span class="step-no">4</span> التأكيد</h3>
+    <p class="muted small">يظهر للعضو كأنه حجزه بنفسه، في «حجوزاتي» وفي سجله وتقرير Excel، مع إشارة «بواسطة المشرف». يُحفظ اسمك ووقت الإنشاء في سجل التدقيق.</p>
+    <button class="btn btn-primary">تأكيد الحجز لـ <%= member.name %></button>
+  </form>
+  <% if (booked.length) { %>
+    <section class="a-card">
+      <h3>حجوزات العضو في <%= fmt.dateLong(date) %></h3>
+      <ul class="summary"><% for (const b of booked) { %><li><span><%= fmt.MEAL_TYPES[b.type] %> · <%= b.meal_name %></span><span><%= fmt.money(b.price) %> · <%= fmt.PAYMENT_STATUS[b.payment_status] %></span></li><% } %></ul>
+    </section>
+  <% } %>
+  <% } %>
+</div>
+<%- include('../partials/admin-bottom') %>

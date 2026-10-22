@@ -1,0 +1,15 @@
+<%- include('../partials/head', { bodyClass: 'auth' }) %>
+<main class="auth-wrap">
+  <div class="card auth-card center">
+    <div class="success-badge">✓</div>
+    <h2>تم إنشاء حسابك بنجاح</h2>
+    <p class="muted">رقم عضويتك هو</p>
+    <div class="member-no-big" id="member-no"><%= memberNo %></div>
+    <p class="note">احفظ هذا الرقم؛ ستستخدمه لتسجيل الدخول ولاستلام وجباتك.</p>
+    <div class="row-btns">
+      <a class="btn btn-primary" href="/login">تسجيل الدخول</a>
+      <button class="btn btn-ghost" type="button" data-copy="<%= memberNo %>">نسخ الرقم</button>
+    </div>
+  </div>
+</main>
+<%- include('../partials/foot') %>

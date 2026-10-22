@@ -1,0 +1,69 @@
+<%- include('../partials/admin-top') %>
+<div class="toolbar">
+  <form method="get" class="inline-form">
+    <label>التاريخ: <input type="date" name="date" value="<%= date %>" data-autosubmit></label>
+    <span class="muted"><%= fmt.dateFull(date) %></span>
+  </form>
+  <form method="post" action="/admin/menu/copy" class="inline-form">
+    <input type="hidden" name="to" value="<%= date %>">
+    <select name="from" required>
+      <option value="">نسخ من يوم سابق…</option>
+      <% for (const d of recentDates) { %><option value="<%= d %>"><%= fmt.dateLong(d) %> (<%= d %>)</option><% } %>
+    </select>
+    <button class="btn btn-ghost btn-sm">نسخ</button>
+  </form>
+</div>
+<div class="a-grid">
+  <section class="a-card">
+    <h3>وجبات اليوم</h3>
+    <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>النوع</th><th>اسم الوجبة</th><th>السعر</th><th>الحجوزات</th><th>الإجراء</th></tr></thead>
+      <tbody>
+        <% if (!meals.length) { %><tr><td colspan="5" class="muted center">لا توجد وجبات لهذا التاريخ. أضف وجبة أو انسخ من يوم سابق.</td></tr><% } %>
+        <% for (const m of meals) { %>
+          <tr class="<%= m.hidden ? 'row-muted' : '' %> <%= editing && editing.id === m.id ? 'row-edit' : '' %>">
+            <td><%= fmt.MEAL_TYPES[m.type] %></td>
+            <td><b><%= m.name %></b><% if (m.description) { %><br><small class="muted"><%= m.description %></small><% } %><% if (m.hidden) { %> <span class="chip chip-soft tiny">مخفية</span><% } %></td>
+            <td><%= fmt.money(m.price) %></td>
+            <td><%= m.booked %></td>
+            <td class="actions">
+              <% if (editing && editing.id === m.id) { %><span class="chip chip-alert tiny">قيد التعديل</span><% } else { %>
+                <a href="/admin/menu?date=<%= date %>&edit=<%= m.id %>">تعديل</a>
+              <% } %>
+              <% if (m.hidden) { %>
+                <form method="post" action="/admin/menu/<%= m.id %>/show"><button class="link-btn">إظهار</button></form>
+              <% } else { %>
+                <form method="post" action="/admin/menu/<%= m.id %>/delete" data-confirm="<%= m.booked ? 'على هذه الوجبة ' + m.booked + ' حجز؛ ستُخفى بدل حذفها. متابعة؟' : 'حذف هذه الوجبة؟' %>"><button class="link-btn danger">حذف</button></form>
+              <% } %>
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+    </div>
+  </section>
+  <section class="a-card">
+    <h3><%= editing ? 'تعديل وجبة' : '+ إضافة وجبة' %></h3>
+    <form method="post" action="/admin/menu" class="form">
+      <input type="hidden" name="date" value="<%= date %>">
+      <% if (editing) { %><input type="hidden" name="id" value="<%= editing.id %>"><% } %>
+      <label class="field"><span>النوع</span>
+        <select name="type" required>
+          <% for (const [k, v] of Object.entries(fmt.MEAL_TYPES)) { %><option value="<%= k %>" <%= editing && editing.type === k ? 'selected' : '' %>><%= v %></option><% } %>
+        </select></label>
+      <label class="field"><span>اسم الوجبة</span><input name="name" value="<%= editing ? editing.name : '' %>" required placeholder="مجبوس دجاج"></label>
+      <label class="field"><span>الوصف</span><textarea name="description" rows="2" placeholder="أرز بالبهارات العُمانية مع سلطة ولبن"><%= editing ? editing.description : '' %></textarea></label>
+      <label class="field"><span>السعر (ر.ع) · من القائمة</span>
+        <select name="price" required>
+          <% for (const p of priceList) { %><option value="<%= p %>" <%= (editing ? editing.price : 1000) === p ? 'selected' : '' %>><%= fmt.money(p) %></option><% } %>
+        </select></label>
+      <% if (editing && editing.booked) { %><p class="note small">تعديل السعر لا يغيّر الحجوزات السابقة؛ كل حجز يحفظ سعره وقت الحجز.</p><% } %>
+      <div class="row-btns">
+        <button class="btn btn-primary">حفظ</button>
+        <% if (editing) { %><a class="btn btn-ghost" href="/admin/menu?date=<%= date %>">إلغاء</a><% } %>
+      </div>
+    </form>
+  </section>
+</div>
+<%- include('../partials/admin-bottom') %>

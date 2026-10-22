@@ -1,0 +1,21 @@
+<%- include('../partials/admin-top') %>
+<form method="get" class="toolbar"><label>الشهر: <input type="month" name="month" value="<%= ym %>" data-autosubmit></label></form>
+<div class="kpis">
+  <div class="kpi"><span>دفعات مسجّلة (نقدًا/تحويل)</span><strong class="teal"><%= fmt.money(total) %></strong><small><%= rows.length %> دفعة · ر.ع</small></div>
+  <div class="kpi"><span>مدفوع إلكترونيًا</span><strong class="teal"><%= fmt.money(online.s) %></strong><small><%= online.c %> وجبة · ر.ع</small></div>
+</div>
+<section class="a-card">
+  <div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>التاريخ</th><th>العضو</th><th>المبلغ (ر.ع)</th><th>الطريقة</th><th>سجّلها</th><th>ملاحظة</th></tr></thead>
+    <tbody>
+      <% if (!rows.length) { %><tr><td colspan="6" class="muted center">لا توجد دفعات في هذا الشهر.</td></tr><% } %>
+      <% for (const p of rows) { %>
+        <tr><td class="ltr"><%= p.date %></td><td><a href="/admin/members/<%= p.user_id %>"><%= p.user_name %></a> <small class="muted ltr"><%= p.member_no %></small></td>
+          <td><b><%= fmt.money(p.amount) %></b></td><td><%= p.method %></td><td><%= p.admin_name %></td><td><%= p.note %></td></tr>
+      <% } %>
+    </tbody>
+  </table>
+  </div>
+</section>
+<%- include('../partials/admin-bottom') %>

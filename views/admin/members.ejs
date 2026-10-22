@@ -1,0 +1,37 @@
+<%- include('../partials/admin-top') %>
+<form method="get" class="toolbar">
+  <input type="search" name="q" value="<%= q %>" placeholder="بحث بالاسم أو رقم العضوية أو الهاتف">
+  <input type="hidden" name="filter" value="<%= filter %>">
+  <button class="btn btn-primary btn-sm">بحث</button>
+  <div class="seg">
+    <% for (const [k, v] of [['all', 'الكل'], ['due', 'عليهم مستحقات'], ['suspended', 'موقوفون']]) { %>
+      <a href="?filter=<%= k %>&q=<%= encodeURIComponent(q) %>" class="<%= filter === k ? 'active' : '' %>"><%= v %></a>
+    <% } %>
+  </div>
+</form>
+<section class="a-card">
+  <div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>رقم العضوية</th><th>الاسم</th><th>الهاتف</th><th>النادي</th><th>حجوزات <%= fmt.monthOnly(ym) %></th><th>المستحق (ر.ع)</th><th>الإجراءات</th></tr></thead>
+    <tbody>
+      <% if (!members.length) { %><tr><td colspan="7" class="muted center">لا يوجد أعضاء.</td></tr><% } %>
+      <% for (const m of members) { %>
+        <tr class="<%= m.active ? '' : 'row-muted' %>">
+          <td class="ltr"><b><%= m.member_no %></b></td>
+          <td><%= m.name %><% if (!m.active) { %> <span class="chip chip-soft tiny">موقوف</span><% } %></td>
+          <td class="ltr"><%= m.phone %></td>
+          <td><%= m.club %></td>
+          <td><%= m.month_count %></td>
+          <td class="<%= m.outstanding ? 'rust' : '' %>"><b><%= fmt.money(m.outstanding) %></b></td>
+          <td class="actions">
+            <a href="/admin/members/<%= m.id %>">السجل</a>
+            <a href="/admin/members/<%= m.id %>#pay">تسجيل دفعة</a>
+          </td>
+        </tr>
+      <% } %>
+    </tbody>
+  </table>
+  </div>
+  <p class="muted small">من «تسجيل دفعة» يسجّل المشرف السداد نقدًا أو تحويلًا، وتتحول الحجوزات المغطاة إلى «مدفوع». تُقبل الدفعات الجزئية، ويبقى الباقي مستحقًا.</p>
+</section>
+<%- include('../partials/admin-bottom') %>
