@@ -158,7 +158,20 @@ WHATSAPP_REMINDER_TEMPLATE=...     # اسم قالب التذكير المعتم
 
 ---
 
-## سابعًا: النشر على خادم
+## سابعًا: النشر على الإنترنت بضغطة واحدة (Render)
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Balushi2001/meal-booking)
+
+1. اضغط الزر أعلاه وسجّل الدخول إلى Render بحساب GitHub.
+2. اسمح لـ Render بالوصول إلى مستودع `meal-booking`.
+3. أدخل كلمة مرور المشرف `ADMIN_PASSWORD` وكلمة مرور شاشة الاستلام `KIOSK_PASSWORD` عندما تُطلب.
+4. اضغط **Apply**، وبعد دقائق يظهر رابط الموقع مثل `https://meal-booking-xxxx.onrender.com`.
+
+الإعداد في الملف `render.yaml`. الخيار `SEED_DEMO=1` يضيف أعضاء ومنيو تجريبيين تلقائيًا عند تشغيل قاعدة بيانات فارغة، فاحذفه عند الاستخدام الفعلي.
+
+> ⚠️ الخطة المجانية في Render للتجربة فقط: الخادم ينام بعد 15 دقيقة بلا زيارات، و**تُمسح البيانات عند كل إعادة تشغيل**، ولا تعمل المهام المجدولة أثناء النوم. للاستخدام الفعلي اختر خطة مدفوعة وأضف قرصًا دائمًا (Disk) مثبتًا على المسار `/var/data`، واضبط `DB_FILE=/var/data/meals.db`.
+
+## ثامنًا: النشر على خادم خاص
 
 ```bash
 NODE_ENV=production \

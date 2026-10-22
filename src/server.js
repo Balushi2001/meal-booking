@@ -66,6 +66,10 @@ app.use((err, req, res, _next) => {
 });
 
 if (require.main === module) {
+  // SEED_DEMO=1 fills an empty database with sample data, handy for a trial deployment.
+  if (process.env.SEED_DEMO === '1' && !db.prepare("SELECT 1 FROM users WHERE role = 'member'").get()) {
+    require('./seed-demo');
+  }
   const port = Number(process.env.PORT) || 3000;
   app.listen(port, () => {
     console.log(`نظام حجز الوجبات يعمل على http://localhost:${port}`);
