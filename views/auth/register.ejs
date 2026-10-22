@@ -1,0 +1,40 @@
+<%- include('../partials/head', { bodyClass: 'auth' }) %>
+<main class="auth-wrap">
+  <div class="card auth-card">
+    <h2>إنشاء حساب</h2>
+    <p class="muted">بعد التسجيل يظهر لك رقم عضويتك فورًا.</p>
+    <form method="post" action="/register" class="form" novalidate>
+      <label class="field <%= errors.name ? 'has-error' : '' %>">
+        <span>الاسم الكامل</span>
+        <input name="name" value="<%= values.name || '' %>" placeholder="أحمد سالم" autocomplete="name" required>
+        <% if (errors.name) { %><small class="err"><%= errors.name %></small><% } %>
+      </label>
+      <label class="field <%= errors.phone ? 'has-error' : '' %>">
+        <span>رقم الهاتف (واتساب)</span>
+        <input name="phone" value="<%= values.phone || '' %>" placeholder="+968 9XXX XXXX" inputmode="tel" autocomplete="tel" dir="ltr" class="ltr-input" required>
+        <% if (errors.phone) { %><small class="err"><%= errors.phone %></small><% } else { %><small class="hint">مع رمز الدولة، وتصلك عليه رسائل التذكير.</small><% } %>
+      </label>
+      <label class="field <%= errors.club ? 'has-error' : '' %>">
+        <span>النادي</span>
+        <select name="club" required>
+          <option value="">اختر النادي الذي لديك عضوية فيه</option>
+          <% for (const c of clubs) { %><option <%= values.club === c ? 'selected' : '' %>><%= c %></option><% } %>
+        </select>
+        <% if (errors.club) { %><small class="err"><%= errors.club %></small><% } %>
+      </label>
+      <label class="field <%= errors.password ? 'has-error' : '' %>">
+        <span>كلمة المرور</span>
+        <input name="password" type="password" placeholder="8 خانات على الأقل" autocomplete="new-password" minlength="8" required>
+        <% if (errors.password) { %><small class="err"><%= errors.password %></small><% } %>
+      </label>
+      <label class="field <%= errors.password_confirm ? 'has-error' : '' %>">
+        <span>تأكيد كلمة المرور</span>
+        <input name="password_confirm" type="password" placeholder="••••••••" autocomplete="new-password" required>
+        <% if (errors.password_confirm) { %><small class="err"><%= errors.password_confirm %></small><% } %>
+      </label>
+      <button class="btn btn-primary btn-block">إنشاء الحساب</button>
+    </form>
+    <div class="auth-links"><span>لديك حساب؟ <a href="/login">تسجيل الدخول</a></span></div>
+  </div>
+</main>
+<%- include('../partials/foot') %>

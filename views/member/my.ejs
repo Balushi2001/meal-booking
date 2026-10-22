@@ -1,0 +1,35 @@
+<%- include('../partials/member-top') %>
+<section class="page-head"><h1>حجوزاتي</h1></section>
+<div class="month-nav">
+  <a href="/my?month=<%= fmt.shiftMonth(ym, -1) %>" aria-label="الشهر السابق">›</a>
+  <strong><%= fmt.monthName(ym) %></strong>
+  <a href="/my?month=<%= fmt.shiftMonth(ym, 1) %>" aria-label="الشهر التالي">‹</a>
+</div>
+<div class="stat-pair">
+  <div class="stat due"><span>المستحق</span><strong><%= fmt.money(totals.due) %></strong></div>
+  <div class="stat paid"><span>المدفوع</span><strong><%= fmt.money(totals.paid) %></strong></div>
+</div>
+<% if (!rows.length) { %>
+  <div class="empty card"><p class="muted">لا توجد حجوزات في هذا الشهر.</p><a href="/book" class="btn btn-primary">احجز وجبات الغد</a></div>
+<% } else { %>
+  <ul class="booking-list">
+    <% for (const b of rows) { %>
+      <li class="card booking <%= b.pickup_status === 'cancelled' ? 'is-cancelled' : '' %>">
+        <div>
+          <strong><%= fmt.dateShort(b.date) %> · <%= fmt.MEAL_TYPES_SHORT[b.type] %></strong>
+          <span class="muted small"><%= b.meal_name %> · <%= b.club %> · <%= fmt.PICKUP_MODE[b.pickup_mode] %></span>
+          <span class="small"><%= fmt.money(b.price) %> · <%= b.pickup_status === 'cancelled' ? '—' : fmt.PAYMENT_STATUS[b.payment_status] %>
+            <% if (b.creator_role === 'admin') { %><span class="chip chip-soft tiny">بواسطة المشرف</span><% } %></span>
+        </div>
+        <div class="booking-side">
+          <span class="pill pill-<%= b.pickup_status %>"><%= fmt.PICKUP_STATUS[b.pickup_status] %></span>
+          <% if (b.pickup_status === 'picked') { %><small class="muted"><%= fmt.timeOf(b.picked_at) %></small><% } %>
+          <% if (allowCancel && b.pickup_status === 'booked' && b.payment_method === 'salary' && isOpen(b.date)) { %>
+            <form method="post" action="/bookings/<%= b.id %>/cancel" data-confirm="إلغاء هذا الحجز؟"><button class="link-btn danger small">إلغاء</button></form>
+          <% } %>
+        </div>
+      </li>
+    <% } %>
+  </ul>
+<% } %>
+<%- include('../partials/member-bottom') %>

@@ -1,0 +1,46 @@
+<%- include('../partials/admin-top') %>
+<form method="get" class="toolbar filters">
+  <label>التاريخ <input type="date" name="date" value="<%= date %>"></label>
+  <select name="type"><option value="">كل الوجبات</option><% for (const [k, v] of Object.entries(fmt.MEAL_TYPES)) { %><option value="<%= k %>" <%= f.type === k ? 'selected' : '' %>><%= v %></option><% } %></select>
+  <select name="club"><option value="">كل الأندية</option><% for (const c of clubs) { %><option <%= f.club === c ? 'selected' : '' %>><%= c %></option><% } %></select>
+  <select name="status"><option value="">كل الحالات</option><% for (const [k, v] of Object.entries(fmt.PICKUP_STATUS)) { %><option value="<%= k %>" <%= f.status === k ? 'selected' : '' %>><%= v %></option><% } %></select>
+  <input type="search" name="q" value="<%= f.q %>" placeholder="بحث بالاسم أو الرقم أو الهاتف">
+  <button class="btn btn-primary btn-sm">عرض</button>
+  <a class="btn btn-ghost btn-sm" href="/admin/bookings/export?date=<%= date %>">Excel للمطبخ</a>
+</form>
+<section class="a-card">
+  <h3>ملخص <%= fmt.dateFull(date) %></h3>
+  <%- include('_kitchen', { kitchen, clubsRows }) %>
+</section>
+<section class="a-card">
+  <h3>الحجوزات (<%= rows.length %>)</h3>
+  <div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>العضو</th><th>الوجبة</th><th>الصنف</th><th>النادي</th><th>الاستلام</th><th>السعر</th><th>الدفع</th><th>الحالة</th></tr></thead>
+    <tbody>
+      <% if (!rows.length) { %><tr><td colspan="8" class="muted center">لا توجد حجوزات مطابقة.</td></tr><% } %>
+      <% for (const b of rows) { %>
+        <tr class="<%= b.pickup_status === 'cancelled' ? 'row-muted' : '' %>">
+          <td><a href="/admin/members/<%= b.user_id %>"><%= b.user_name %></a> <small class="muted ltr"><%= b.member_no %></small>
+            <% if (b.creator_role === 'admin') { %><br><span class="chip chip-soft tiny">بواسطة <%= b.creator_name %></span><% } %></td>
+          <td><%= fmt.MEAL_TYPES_SHORT[b.type] %></td>
+          <td><%= b.meal_name %></td>
+          <td><%= b.club %></td>
+          <td><%= fmt.PICKUP_MODE[b.pickup_mode] %></td>
+          <td><%= fmt.money(b.price) %></td>
+          <td><span class="pill pill-<%= b.payment_status %>"><%= fmt.PAYMENT_STATUS[b.payment_status] %></span><br><small class="muted"><%= fmt.PAYMENT_METHOD[b.payment_method] %></small></td>
+          <td>
+            <form method="post" action="/admin/bookings/<%= b.id %>/status" class="status-form">
+              <select name="pickup_status" data-autosubmit data-confirm-change="تغيير حالة الحجز يدويًا؟">
+                <% for (const [k, v] of Object.entries(fmt.PICKUP_STATUS)) { %><option value="<%= k %>" <%= b.pickup_status === k ? 'selected' : '' %>><%= v %></option><% } %>
+              </select>
+            </form>
+            <% if (b.picked_at) { %><small class="muted"><%= fmt.timeOf(b.picked_at) %></small><% } %>
+          </td>
+        </tr>
+      <% } %>
+    </tbody>
+  </table>
+  </div>
+</section>
+<%- include('../partials/admin-bottom') %>

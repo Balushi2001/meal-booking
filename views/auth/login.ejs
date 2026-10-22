@@ -1,0 +1,31 @@
+<%- include('../partials/head', { bodyClass: 'auth' }) %>
+<main class="auth-wrap">
+  <div class="auth-hero">
+    <div class="hero-icons">☕ 🍛 🥣</div>
+    <h1>نظام حجز الوجبات</h1>
+    <p>الإفطار · الغداء · العشاء</p>
+  </div>
+  <div class="card auth-card">
+    <h2>تسجيل الدخول</h2>
+    <p class="muted">أدخل رقم عضويتك وكلمة المرور</p>
+    <%- include('../partials/flash') %>
+    <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+    <form method="post" action="/login" class="form" novalidate>
+      <label class="field">
+        <span>رقم العضوية</span>
+        <input name="member_no" value="<%= values.member_no || '' %>" placeholder="A527" autocomplete="username"
+               autocapitalize="characters" dir="ltr" class="ltr-input" required autofocus>
+      </label>
+      <label class="field">
+        <span>كلمة المرور</span>
+        <input name="password" type="password" placeholder="••••••••" autocomplete="current-password" required>
+      </label>
+      <button class="btn btn-primary btn-block">دخول</button>
+    </form>
+    <div class="auth-links">
+      <a href="/forgot">نسيت كلمة المرور أو رقم العضوية؟</a>
+      <span>ليس لديك حساب؟ <a href="/register">إنشاء حساب</a></span>
+    </div>
+  </div>
+</main>
+<%- include('../partials/foot') %>

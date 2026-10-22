@@ -1,0 +1,48 @@
+<%- include('../partials/member-top') %>
+<section class="greet">
+  <div>
+    <h1>مرحبًا، <%= user.name %></h1>
+    <p class="muted small"><%= fmt.dateFull(today) %></p>
+  </div>
+  <span class="chip chip-soft big"><%= user.member_no %></span>
+</section>
+
+<% if (targetBookings.length) { %>
+  <a class="banner banner-ok" href="/my">
+    <strong>حجزت وجبات <%= fmt.dateLong(target.date) %> ✓</strong>
+    <span><%= targetBookings.map(b => fmt.MEAL_TYPES[b.type] + ': ' + b.meal_name).join(' · ') %></span>
+    <% if (targetBookings.length < 3) { %><span class="small">يمكنك إضافة وجبة أخرى قبل الإغلاق · <span data-countdown="<%= target.closesAt.getTime() %>"></span></span><% } %>
+  </a>
+<% } else if (menuPublished) { %>
+  <a class="banner banner-alert" href="/book">
+    <strong>حجز وجبات الغد · <%= fmt.dateLong(target.date) %></strong>
+    <span>يُغلق <span data-countdown="<%= target.closesAt.getTime() %>"></span></span>
+    <span class="banner-cta">احجز الآن ←</span>
+  </a>
+<% } else { %>
+  <div class="banner banner-muted">
+    <strong>لم يُنشر منيو الغد بعد</strong>
+    <span>سيظهر هنا عندما يضيفه المشرف.</span>
+  </div>
+<% } %>
+
+<section class="card">
+  <h2 class="card-title">وجبات اليوم · <%= fmt.dayName(today) %></h2>
+  <ul class="status-list">
+    <% for (const type of ['breakfast', 'lunch', 'dinner']) {
+         const b = todayBookings.find(x => x.type === type);
+         const status = b ? b.pickup_status : 'none'; %>
+      <li>
+        <span><%= fmt.MEAL_TYPES[type] %><% if (b) { %> <small class="muted">· <%= b.meal_name %></small><% } %></span>
+        <span class="pill pill-<%= status %>"><%= b ? fmt.PICKUP_STATUS[status] : 'غير محجوز' %></span>
+      </li>
+    <% } %>
+  </ul>
+</section>
+
+<a class="card card-dark" href="/account">
+  <span>المستحق هذا الشهر</span>
+  <strong class="amount"><%= fmt.money(outstanding) %> <small>ر.ع</small></strong>
+  <span class="small">كشف الحساب التفصيلي ←</span>
+</a>
+<%- include('../partials/member-bottom') %>

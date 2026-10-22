@@ -1,0 +1,27 @@
+<%- include('head', { bodyClass: 'admin' }) %>
+<div class="a-shell">
+  <aside class="a-side" id="a-side">
+    <div class="a-side-title">لوحة المشرف</div>
+    <nav>
+      <% const items = [
+        ['/admin', 'الرئيسية'], ['/admin/menu', 'المنيو'], ['/admin/bookings', 'الحجوزات'],
+        ['/admin/book', 'حجز نيابة عن عضو'], ['/admin/members', 'الأعضاء'], ['/admin/payments', 'المدفوعات'],
+        ['/admin/reports', 'التقارير'], ['/admin/settings', 'الإعدادات'] ];
+      for (const [href, label] of items) {
+        const active = path === href || (href !== '/admin' && path.startsWith(href + '/')); %>
+        <a href="<%= href %>" class="<%= active ? 'active' : '' %>"><%= label %></a>
+      <% } %>
+    </nav>
+    <div class="a-side-foot">
+      <a href="/kiosk" target="_blank" rel="noopener">فتح شاشة الاستلام ↗</a>
+      <form method="post" action="/logout"><button class="link-btn">تسجيل الخروج</button></form>
+    </div>
+  </aside>
+  <div class="a-main">
+    <header class="a-top">
+      <button class="a-menu-btn" type="button" data-toggle="#a-side" aria-label="القائمة">☰</button>
+      <h1><%= title %></h1>
+      <span class="muted small"><%= fmt.dateFull(new Date().toLocaleDateString('en-CA')) %></span>
+    </header>
+    <div class="a-content">
+      <%- include('flash') %>

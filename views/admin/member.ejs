@@ -1,0 +1,74 @@
+<%- include('../partials/admin-top') %>
+<div class="toolbar">
+  <span><b><%= member.name %></b> · <span class="ltr"><%= member.member_no %></span> · <span class="ltr"><%= member.phone %></span> · <%= member.club %>
+    <% if (!member.active) { %><span class="chip chip-alert tiny">موقوف</span><% } %></span>
+  <form method="get" class="inline-form">
+    <label>الشهر: <input type="month" name="month" value="<%= ym %>" data-autosubmit></label>
+  </form>
+  <a class="btn btn-primary btn-sm" href="/admin/members/<%= member.id %>/export?month=<%= ym %>">تنزيل ملف Excel</a>
+  <a class="btn btn-ghost btn-sm" href="/admin/book?user=<%= member.id %>">حجز نيابة عنه</a>
+</div>
+
+<section class="a-card">
+  <h3>سجل <%= fmt.monthName(ym) %></h3>
+  <div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>اليوم</th><th>التاريخ</th><th>الوجبة</th><th>الصنف</th><th>السعر</th><th>طريقة الدفع</th><th>حالة الدفع</th><th>الاستلام</th><th>الوقت</th></tr></thead>
+    <tbody>
+      <% if (!rows.length) { %><tr><td colspan="9" class="muted center">لا توجد حجوزات في هذا الشهر.</td></tr><% } %>
+      <% for (const b of rows) { %>
+        <tr>
+          <td><%= fmt.dayName(b.date) %></td><td class="ltr"><%= b.date %></td><td><%= fmt.MEAL_TYPES_SHORT[b.type] %></td>
+          <td><%= b.meal_name %><% if (b.creator_role === 'admin') { %> <span class="chip chip-soft tiny">بواسطة المشرف</span><% } %></td>
+          <td><%= fmt.money(b.price) %></td><td><%= fmt.PAYMENT_METHOD[b.payment_method] %></td>
+          <td><span class="pill pill-<%= b.payment_status %>"><%= fmt.PAYMENT_STATUS[b.payment_status] %></span></td>
+          <td>
+            <form method="post" action="/admin/bookings/<%= b.id %>/status" class="status-form">
+              <select name="pickup_status" data-autosubmit data-confirm-change="تغيير حالة الحجز يدويًا؟">
+                <% for (const [k, v] of Object.entries(fmt.PICKUP_STATUS)) { %><option value="<%= k %>" <%= b.pickup_status === k ? 'selected' : '' %>><%= v %></option><% } %>
+              </select>
+            </form>
+          </td>
+          <td><%= fmt.timeOf(b.picked_at) %></td>
+        </tr>
+      <% } %>
+    </tbody>
+    <tfoot><tr><td colspan="4"><b>الإجمالي</b></td><td><b><%= fmt.money(totals.total) %></b></td><td></td><td colspan="3">مستحق <%= fmt.money(totals.due) %> · مدفوع <%= fmt.money(totals.paid) %></td></tr></tfoot>
+  </table>
+  </div>
+</section>
+
+<div class="a-grid">
+  <section class="a-card" id="pay">
+    <h3>تسجيل دفعة · <%= member.name %> <span class="ltr"><%= member.member_no %></span></h3>
+    <p>إجمالي المستحق: <b class="rust"><%= fmt.money(outstanding) %> ر.ع</b></p>
+    <form method="post" action="/admin/members/<%= member.id %>/payment" class="form">
+      <label class="field"><span>المبلغ المدفوع (ر.ع)</span><input name="amount" type="number" step="0.001" min="0.001" value="<%= fmt.money(outstanding) %>" required dir="ltr" class="ltr-input"></label>
+      <label class="field"><span>طريقة السداد</span><select name="method"><option value="cash">نقدًا</option><option value="transfer">تحويل</option></select></label>
+      <label class="field"><span>ملاحظة</span><input name="note" placeholder="اختياري"></label>
+      <button class="btn btn-primary">تسجيل</button>
+      <p class="muted small">تُقبل الدفعات الجزئية، ويبقى الباقي مستحقًا. تُغطّى الحجوزات الأقدم أولًا.</p>
+    </form>
+    <% if (payments.length) { %>
+      <h4 class="mt">آخر الدفعات</h4>
+      <ul class="summary"><% for (const p of payments) { %><li><span><%= p.date %> · <%= p.method %> · <small class="muted"><%= p.admin_name %><%= p.note ? ' · ' + p.note : '' %></small></span><span><%= fmt.money(p.amount) %></span></li><% } %></ul>
+    <% } %>
+  </section>
+  <section class="a-card">
+    <h3>إجراءات أخرى على العضو</h3>
+    <form method="post" action="/admin/members/<%= member.id %>/edit" class="form">
+      <label class="field"><span>الاسم</span><input name="name" value="<%= member.name %>" required></label>
+      <label class="field"><span>الهاتف</span><input name="phone" value="<%= member.phone %>" dir="ltr" class="ltr-input" required></label>
+      <label class="field"><span>النادي</span><select name="club"><% for (const c of clubs) { %><option <%= member.club === c ? 'selected' : '' %>><%= c %></option><% } %></select></label>
+      <button class="btn btn-ghost">حفظ البيانات</button>
+    </form>
+    <form method="post" action="/admin/members/<%= member.id %>/password" class="form mt">
+      <label class="field"><span>إعادة تعيين كلمة المرور</span><input name="password" type="text" minlength="8" placeholder="كلمة مرور جديدة (8 خانات)" required></label>
+      <button class="btn btn-ghost">إعادة التعيين</button>
+    </form>
+    <form method="post" action="/admin/members/<%= member.id %>/toggle" class="mt" data-confirm="<%= member.active ? 'إيقاف حساب العضو؟ لن يستطيع الدخول أو الحجز.' : 'تفعيل حساب العضو؟' %>">
+      <button class="btn <%= member.active ? 'btn-danger-ghost' : 'btn-primary' %>"><%= member.active ? 'إيقاف الحساب' : 'تفعيل الحساب' %></button>
+    </form>
+  </section>
+</div>
+<%- include('../partials/admin-bottom') %>

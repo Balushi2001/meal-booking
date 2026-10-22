@@ -1,0 +1,30 @@
+<%- include('../partials/member-top') %>
+<section class="page-head">
+  <h1>النادي وطريقة الاستلام</h1>
+  <p class="muted"><%= fmt.dateLong(target.date) %> · <%= meals.length %> <%= meals.length === 1 ? 'وجبة' : 'وجبات' %> · <%= fmt.money(total) %> ر.ع</p>
+</section>
+<form method="post" action="/book/options" data-options>
+  <section class="card">
+    <h2 class="card-title">🏟️ اختر النادي</h2>
+    <p class="muted small">النادي الذي لديك عضوية فيه</p>
+    <div class="choice-grid">
+      <% for (const c of clubs) { %>
+        <label class="choice"><input type="radio" name="club" value="<%= c %>" <%= draft.club === c ? 'checked' : '' %> required><span><%= c %></span></label>
+      <% } %>
+    </div>
+  </section>
+  <section class="card">
+    <h2 class="card-title">🍴 طريقة الاستلام <small class="muted">(لكل الوجبات)</small></h2>
+    <div class="choice-grid two">
+      <label class="choice tall"><input type="radio" name="mode" value="takeaway" <%= draft.mode === 'takeaway' ? 'checked' : '' %> required>
+        <span><b>🥡 سفري (بارسل)</b><small>آخذ الوجبة معي</small></span></label>
+      <label class="choice tall"><input type="radio" name="mode" value="dinein" <%= draft.mode === 'dinein' ? 'checked' : '' %>>
+        <span><b>🍽️ الجلوس في النادي</b><small>أتناولها داخل النادي</small></span></label>
+    </div>
+  </section>
+  <div class="total-bar">
+    <a href="/book" class="btn btn-ghost">→ رجوع</a>
+    <button class="btn btn-accent">متابعة للدفع ←</button>
+  </div>
+</form>
+<%- include('../partials/member-bottom') %>

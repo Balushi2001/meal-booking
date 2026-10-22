@@ -1,0 +1,13 @@
+<%- include('../partials/member-top') %>
+<section class="card center">
+  <div class="success-badge">✓</div>
+  <h1>تم تأكيد حجزك</h1>
+  <p class="muted"><%= fmt.dateLong(last.date) %> · <%= last.method === 'now' ? 'مدفوع' : 'يُضاف إلى مستحقاتك عند نزول الراتب' %></p>
+  <ul class="summary">
+    <% for (const b of items) { %>
+      <li><span><%= fmt.MEAL_TYPES[b.type] %> · <%= b.meal_name %></span><span class="pill pill-<%= b.payment_status %>"><%= fmt.PAYMENT_STATUS[b.payment_status] %></span></li>
+    <% } %>
+  </ul>
+  <div class="row-btns"><a class="btn btn-primary" href="/my">حجوزاتي</a><a class="btn btn-ghost" href="/">الرئيسية</a></div>
+</section>
+<%- include('../partials/member-bottom') %>

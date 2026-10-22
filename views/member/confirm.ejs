@@ -1,0 +1,27 @@
+<%- include('../partials/member-top') %>
+<section class="page-head"><h1>تأكيد الحجز</h1><p class="muted"><%= fmt.dateLong(target.date) %></p></section>
+<section class="card">
+  <ul class="summary">
+    <% for (const m of meals) { %>
+      <li><span><%= fmt.MEAL_TYPES[m.type] %> · <%= m.name %></span><span><%= fmt.money(m.price) %></span></li>
+    <% } %>
+    <li class="muted small"><span><%= draft.club %> · <%= fmt.PICKUP_MODE[draft.mode] %></span><a href="/book/options">تغيير</a></li>
+    <li class="total"><span>الإجمالي</span><span><%= fmt.money(total) %> ر.ع</span></li>
+  </ul>
+</section>
+<form method="post" action="/book/confirm">
+  <section class="card">
+    <h2 class="card-title">طريقة الدفع</h2>
+    <div class="choice-grid two">
+      <label class="choice tall"><input type="radio" name="method" value="now" required>
+        <span><b>💳 الدفع الآن</b><small>بطاقة بنكية عبر بوابة الدفع</small></span></label>
+      <label class="choice tall"><input type="radio" name="method" value="salary" checked>
+        <span><b>🗓️ عند نزول الراتب</b><small>يُضاف إلى مستحقات <%= fmt.monthOnly(target.date.slice(0,7)) %></small></span></label>
+    </div>
+  </section>
+  <div class="total-bar">
+    <a href="/book/options" class="btn btn-ghost">→ رجوع</a>
+    <button class="btn btn-accent">تأكيد الحجز</button>
+  </div>
+</form>
+<%- include('../partials/member-bottom') %>

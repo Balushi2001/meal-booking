@@ -1,0 +1,8 @@
+</main>
+<nav class="tabbar" aria-label="التنقل">
+  <a href="/" class="<%= path === '/' ? 'active' : '' %>"><span>🏠</span>الرئيسية</a>
+  <a href="/book" class="<%= path.startsWith('/book') || path.startsWith('/pay') ? 'active' : '' %>"><span>🍴</span>الحجز</a>
+  <a href="/my" class="<%= path === '/my' ? 'active' : '' %>"><span>📋</span>حجوزاتي</a>
+  <a href="/account" class="<%= path === '/account' ? 'active' : '' %>"><span>👤</span>حسابي</a>
+</nav>
+<%- include('foot') %>

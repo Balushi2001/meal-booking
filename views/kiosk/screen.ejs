@@ -1,0 +1,90 @@
+<%- include('../partials/head', { bodyClass: 'kiosk' }) %>
+<main class="kiosk-wrap" <% if (state !== 'input') { %>data-auto-reset="10"<% } %>>
+  <header class="kiosk-head">
+    <span>🍽️ شاشة الاستلام</span>
+    <span><%= mealType ? 'وجبة ' + fmt.MEAL_TYPES[mealType] + ' · ' + fmt.dateLong(today) : 'لا توجد وجبة في هذا الوقت' %></span>
+  </header>
+
+  <% if (state === 'input') { %>
+    <section class="k-card">
+      <div class="k-tag k-tag-muted">الإدخال</div>
+      <h1>أدخل رقم عضويتك</h1>
+      <form method="post" action="/kiosk/check" data-keypad autocomplete="off">
+        <input name="member_no" class="k-display" maxlength="5" dir="ltr" readonly required aria-label="رقم العضوية" placeholder="A527">
+        <div class="k-letters" data-letters>
+          <% for (const l of 'ABDFGHJKLMNQRSTWYZ'.split('')) { %><button type="button" data-key="<%= l %>"><%= l %></button><% } %>
+        </div>
+        <div class="k-pad">
+          <% for (const d of ['1','2','3','4','5','6','7','8','9']) { %><button type="button" data-key="<%= d %>"><%= d %></button><% } %>
+          <button type="button" class="k-clear" data-clear>مسح</button>
+          <button type="button" data-key="0">0</button>
+          <button type="submit" class="k-go">تحقق</button>
+        </div>
+      </form>
+    </section>
+  <% } else if (state === 'found') { %>
+    <section class="k-card">
+      <div class="k-tag k-tag-ok">يوجد حجز</div>
+      <h1>أهلًا <%= member.name %></h1>
+      <p class="muted">رقم العضوية <%= member.member_no %></p>
+      <div class="k-meal">
+        <span class="muted">وجبة <%= fmt.MEAL_TYPES[booking.type] %> · <%= fmt.dateLong(booking.date) %></span>
+        <strong><%= booking.meal_name %></strong>
+        <span class="muted small"><%= booking.club %> · <%= fmt.PICKUP_MODE[booking.pickup_mode] %></span>
+        <span class="pill pill-booked">محجوز · لم يُستلم بعد</span>
+      </div>
+      <form method="post" action="/kiosk/confirm">
+        <input type="hidden" name="booking_id" value="<%= booking.id %>">
+        <button class="btn btn-ok btn-block btn-xl">تأكيد الاستلام</button>
+      </form>
+      <a href="/kiosk" class="btn btn-ghost btn-block">رجوع</a>
+      <p class="muted small" data-reset-note>تعود الشاشة للبداية بعد 10 ثوانٍ</p>
+    </section>
+  <% } else if (state === 'picked') { %>
+    <section class="k-card">
+      <div class="success-badge">✓</div>
+      <h1>تم الاستلام، بالعافية!</h1>
+      <p><%= member.name %> · <%= member.member_no %></p>
+      <p class="muted"><%= mealName %> · الساعة <%= fmt.timeOf(booking.picked_at) %></p>
+      <a href="/kiosk" class="btn btn-primary btn-block">التالي</a>
+      <p class="muted small" data-reset-note>تعود الشاشة للبداية بعد 10 ثوانٍ</p>
+    </section>
+  <% } else if (state === 'already') { %>
+    <section class="k-card">
+      <div class="k-tag k-tag-warn">تم الاستلام مسبقًا</div>
+      <div class="warn-icon">!</div>
+      <h1>تم الاستلام الساعة <%= fmt.timeOf(booking.picked_at) %></h1>
+      <p class="muted"><%= member.name %> · <%= member.member_no %> · <%= booking.meal_name || '' %></p>
+      <p class="muted small">لا يمكن استلام الوجبة مرتين. إذا كنت تعتقد أن هذا خطأ، تواصل مع المشرف.</p>
+      <a href="/kiosk" class="btn btn-ghost btn-block">رجوع</a>
+    </section>
+  <% } else if (state === 'none') { %>
+    <section class="k-card">
+      <div class="k-tag k-tag-bad">لا يوجد حجز</div>
+      <div class="warn-icon">!</div>
+      <h1>لا يوجد حجز مسجل لهذه الوجبة اليوم</h1>
+      <p class="muted">رقم العضوية <%= member.member_no %></p>
+      <p class="muted small">إذا كنت تعتقد أن هذا خطأ، تواصل مع المشرف.</p>
+      <a href="/kiosk" class="btn btn-ghost btn-block">رجوع</a>
+    </section>
+  <% } else if (state === 'unknown') { %>
+    <section class="k-card">
+      <div class="k-tag k-tag-bad">رقم خاطئ</div>
+      <div class="warn-icon">!</div>
+      <h1>رقم العضوية غير موجود</h1>
+      <p class="muted ltr"><%= memberNo %></p>
+      <a href="/kiosk" class="btn btn-primary btn-block">إعادة المحاولة</a>
+    </section>
+  <% } else { %>
+    <section class="k-card">
+      <div class="k-tag k-tag-muted">خارج أوقات الوجبات</div>
+      <h1>لا توجد وجبة متاحة للاستلام الآن</h1>
+      <p class="muted small">أوقات الاستلام يحددها المشرف من الإعدادات.</p>
+      <a href="/kiosk" class="btn btn-ghost btn-block">رجوع</a>
+    </section>
+  <% } %>
+  <% if (user.role === 'admin') { %><a class="kiosk-exit" href="/admin">← لوحة المشرف</a><% } else { %>
+    <form method="post" action="/logout" class="kiosk-exit" data-confirm="تسجيل خروج شاشة الاستلام؟"><button class="link-btn">خروج</button></form>
+  <% } %>
+</main>
+<%- include('../partials/foot') %>

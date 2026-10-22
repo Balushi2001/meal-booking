@@ -1,0 +1,41 @@
+<%- include('../partials/member-top') %>
+<section class="page-head"><h1>حسابي</h1></section>
+<section class="card">
+  <dl class="kv">
+    <dt>الاسم</dt><dd><%= user.name %></dd>
+    <dt>رقم العضوية</dt><dd><strong class="ltr"><%= user.member_no %></strong></dd>
+    <dt>الهاتف</dt><dd class="ltr"><%= user.phone %></dd>
+  </dl>
+</section>
+<section class="card card-dark">
+  <span>إجمالي المستحق</span>
+  <strong class="amount"><%= fmt.money(outstanding) %> <small>ر.ع</small></strong>
+  <% if (credit) { %><span class="small">منها دفعة جزئية مسجّلة: <%= fmt.money(credit) %> ر.ع</span><% } %>
+  <span class="small">يُسدد عند نزول الراتب، ويسجّله المشرف فتتحول الحجوزات إلى «مدفوع».</span>
+</section>
+<% if (payments.length) { %>
+<section class="card">
+  <h2 class="card-title">دفعاتي</h2>
+  <ul class="summary">
+    <% for (const p of payments) { %><li><span><%= p.date %> · <%= p.method %></span><span><%= fmt.money(p.amount) %> ر.ع</span></li><% } %>
+  </ul>
+</section>
+<% } %>
+<section class="card">
+  <h2 class="card-title">النادي الافتراضي</h2>
+  <form method="post" action="/account/club" class="inline-form">
+    <select name="club"><% for (const c of clubs) { %><option <%= user.club === c ? 'selected' : '' %>><%= c %></option><% } %></select>
+    <button class="btn btn-ghost">حفظ</button>
+  </form>
+</section>
+<section class="card">
+  <h2 class="card-title">تغيير كلمة المرور</h2>
+  <form method="post" action="/account/password" class="form">
+    <label class="field"><span>كلمة المرور الحالية</span><input type="password" name="current" required autocomplete="current-password"></label>
+    <label class="field"><span>كلمة المرور الجديدة</span><input type="password" name="password" minlength="8" required autocomplete="new-password"></label>
+    <label class="field"><span>تأكيد كلمة المرور</span><input type="password" name="password_confirm" required autocomplete="new-password"></label>
+    <button class="btn btn-primary">تغيير كلمة المرور</button>
+  </form>
+</section>
+<form method="post" action="/logout"><button class="btn btn-danger-ghost btn-block">تسجيل الخروج</button></form>
+<%- include('../partials/member-bottom') %>
